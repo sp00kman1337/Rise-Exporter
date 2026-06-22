@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Rise 360 Bulk Export
 // @namespace    rise-bulk-export
-// @version      3.3
+// @version      3.4
 // @description  Bulk export Rise 360 courses as Web (HTML) and/or LMS (SCORM) zips from selected folders
 // @match        https://rise.articulate.com/*
 // @match        https://app.rise.com/*
@@ -470,85 +470,77 @@
   }
 
   // ── UI ────────────────────────────────────────────────────────────────────────
-  /** Inject BootStream theme + Bootstrap Icons from the OLIVE server */
-  function injectOliveStyles() {
-    const BASE = 'https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main';
-    [
-      `${BASE}/dist/theme.min.css`,
-      'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
-    ].forEach(href => {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet'; link.href = href;
-      document.head.appendChild(link);
-    });
-  }
-
   GM_addStyle(`
     .rbe-export-active [data-ba="content.dropDownMenu.menuButton"],
     .rbe-export-active [class*="block-view-item-common_menu"],
     .rbe-export-active [class*="menu_item"] > button { opacity:1!important; visibility:visible!important; pointer-events:auto!important }
-    #rbe-panel { position:fixed; top:60px; right:16px; width:320px; max-height:calc(100vh - 80px); z-index:99999; overflow:hidden; display:flex; flex-direction:column }
+    #rbe-panel { position:fixed; top:60px; right:16px; width:320px; max-height:calc(100vh - 80px); z-index:99999; display:flex; flex-direction:column; overflow:hidden; background:#fff; border:1px solid #d0d0d0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:13px; color:#333 }
+    #rbe-panel * { box-sizing:border-box }
     #rbe-panel.rbe-collapsed #rbe-body { display:none }
     #rbe-panel.rbe-collapsed { width:auto }
-    #rbe-header { cursor:move; user-select:none; flex-shrink:0 }
+    #rbe-header { display:flex; align-items:center; justify-content:space-between; padding:9px 14px; background:#000; color:#fff; cursor:move; user-select:none; flex-shrink:0 }
+    #rbe-header span { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px }
+    #rbe-toggle-btn { background:none; border:none; color:#fff; cursor:pointer; font-size:16px; padding:0; line-height:1 }
     #rbe-body { display:flex; flex-direction:column; overflow-y:auto; flex:1 }
-    #rbe-folder-list { max-height:180px; overflow-y:auto }
-    #rbe-log { max-height:220px; overflow-y:auto; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:11px; line-height:1.5 }
+    #rbe-instructions { padding:10px 14px; border-bottom:1px solid #dee2e6; background:#f7f7f7; font-size:12px; color:#555; line-height:1.5 }
+    #rbe-instructions strong { font-weight:600; color:#333 }
+    .rbe-section { padding:10px 14px; border-bottom:1px solid #dee2e6 }
+    .rbe-label { margin:0 0 8px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#6c757d }
+    .rbe-btn { display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.3px; border:1px solid transparent; cursor:pointer; border-radius:0; white-space:nowrap }
+    .rbe-btn:disabled { opacity:.4; cursor:not-allowed }
+    .rbe-btn-primary { background:#5564ff; color:#fff; border-color:#5564ff }
+    .rbe-btn-primary:hover:not(:disabled) { background:#3d4de0; border-color:#3d4de0 }
+    .rbe-btn-danger { background:#cc3340; color:#fff; border-color:#cc3340 }
+    .rbe-btn-danger:hover:not(:disabled) { background:#a82834; border-color:#a82834 }
+    .rbe-btn-outline { background:#fff; color:#373737; border-color:#373737 }
+    .rbe-btn-outline:hover:not(:disabled) { background:#373737; color:#fff }
+    .rbe-btn-full { width:100% }
+    .rbe-action-row { display:flex; gap:6px }
+    .rbe-btn-grow { flex:1 }
+    #rbe-folder-list { max-height:180px; overflow-y:auto; margin-top:6px }
+    .rbe-check { display:flex; align-items:center; gap:6px; padding:3px 0; cursor:pointer; font-size:12px; margin:0 }
+    .rbe-check input { width:14px; height:14px; margin:0; cursor:pointer; accent-color:#5564ff; flex-shrink:0 }
+    .rbe-radio-group { display:flex; flex-wrap:wrap; gap:10px }
+    #rbe-select-links { margin-top:6px; font-size:11px }
+    #rbe-select-links a { color:#5564ff; cursor:pointer; text-decoration:none; margin-right:8px }
+    #rbe-select-links a:hover { text-decoration:underline }
+    #rbe-log { max-height:220px; overflow-y:auto; padding:8px 14px; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:11px; line-height:1.5; background:#f7f7f7 }
     .rbe-log-info { color:#555 } .rbe-log-success { color:#00985b } .rbe-log-warn { color:#f67d02 } .rbe-log-error { color:#cc3340 }
   `);
 
   function createPanel() {
     const panel = document.createElement('div');
     panel.id = 'rbe-panel';
-    panel.className = 'card';
     panel.innerHTML = `
-      <div id="rbe-header" class="card-header bg-dark text-white d-flex align-items-center justify-content-between py-2 px-3">
-        <span class="fw-semibold small text-uppercase" style="letter-spacing:.5px">
-          <i class="bi bi-box-arrow-up me-2" aria-hidden="true"></i>Rise Bulk Export
-        </span>
-        <button id="rbe-toggle-btn" class="btn p-0 border-0 text-white" title="Collapse" style="background:none;font-size:1.1rem;line-height:1">−</button>
+      <div id="rbe-header">
+        <span>Rise Bulk Export</span>
+        <button id="rbe-toggle-btn" title="Collapse">−</button>
       </div>
       <div id="rbe-body">
-        <div id="rbe-instructions" class="px-3 py-2 border-bottom bg-light small text-secondary" style="line-height:1.5">
+        <div id="rbe-instructions">
           This exporter automatically exports Rise courses as HTML or SCORM. Navigate into a main folder, click <strong>Scan Folders</strong>, select which subfolders to export, then click <strong>Start Export</strong>. All files will be downloaded to your downloads folder.
         </div>
-        <div class="px-3 py-2 border-bottom">
-          <p class="small fw-semibold text-uppercase text-secondary mb-2" style="font-size:10px;letter-spacing:.5px">Folders</p>
-          <button class="btn btn-outline-secondary btn-sm w-100" id="rbe-scan-btn">
-            <i class="bi bi-search me-1" aria-hidden="true"></i>Scan Folders
-          </button>
-          <div id="rbe-folder-list" class="mt-2"></div>
-          <div id="rbe-select-links" class="mt-1 small" style="display:none">
-            <a id="rbe-select-all" class="link-primary me-2" role="button" style="cursor:pointer;text-decoration:none">Select all</a>
-            <a id="rbe-select-none" class="link-primary" role="button" style="cursor:pointer;text-decoration:none">Select none</a>
+        <div class="rbe-section">
+          <p class="rbe-label">Folders</p>
+          <button class="rbe-btn rbe-btn-outline rbe-btn-full" id="rbe-scan-btn">Scan Folders</button>
+          <div id="rbe-folder-list"></div>
+          <div id="rbe-select-links" style="display:none">
+            <a id="rbe-select-all">Select all</a><a id="rbe-select-none">Select none</a>
           </div>
         </div>
-        <div class="px-3 py-2 border-bottom">
-          <p class="small fw-semibold text-uppercase text-secondary mb-2" style="font-size:10px;letter-spacing:.5px">Export Format</p>
-          <div class="d-flex gap-3 flex-wrap">
-            <div class="form-check mb-0">
-              <input class="form-check-input" type="radio" name="rbe-format" id="rbe-fmt-web" value="web" checked>
-              <label class="form-check-label small" for="rbe-fmt-web">Web (HTML)</label>
-            </div>
-            <div class="form-check mb-0">
-              <input class="form-check-input" type="radio" name="rbe-format" id="rbe-fmt-lms" value="lms">
-              <label class="form-check-label small" for="rbe-fmt-lms">LMS (SCORM)</label>
-            </div>
-            <div class="form-check mb-0">
-              <input class="form-check-input" type="radio" name="rbe-format" id="rbe-fmt-both" value="both">
-              <label class="form-check-label small" for="rbe-fmt-both">Both</label>
-            </div>
+        <div class="rbe-section">
+          <p class="rbe-label">Export Format</p>
+          <div class="rbe-radio-group">
+            <label class="rbe-check"><input type="radio" name="rbe-format" id="rbe-fmt-web" value="web" checked><span>Web (HTML)</span></label>
+            <label class="rbe-check"><input type="radio" name="rbe-format" id="rbe-fmt-lms" value="lms"><span>LMS (SCORM)</span></label>
+            <label class="rbe-check"><input type="radio" name="rbe-format" id="rbe-fmt-both" value="both"><span>Both</span></label>
           </div>
         </div>
-        <div class="px-3 py-2 border-bottom d-flex gap-2">
-          <button class="btn btn-primary btn-sm flex-grow-1" id="rbe-start-btn" disabled>
-            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start Export
-          </button>
-          <button class="btn btn-danger btn-sm" id="rbe-stop-btn">
-            <i class="bi bi-stop-fill me-1" aria-hidden="true"></i>Stop
-          </button>
+        <div class="rbe-section rbe-action-row">
+          <button class="rbe-btn rbe-btn-primary rbe-btn-grow" id="rbe-start-btn" disabled>Start Export</button>
+          <button class="rbe-btn rbe-btn-danger" id="rbe-stop-btn">Stop</button>
         </div>
-        <div id="rbe-log" class="px-3 py-2 bg-light"></div>
+        <div id="rbe-log"></div>
       </div>`;
     document.body.appendChild(panel);
 
@@ -575,17 +567,17 @@
           log(`  Link: "${a.textContent.trim().slice(0, 50)}" bc=${!!a.closest('[data-ba="breadcrumbs_container"],[aria-label="Breadcrumbs"]')} href=${(a.href || '').slice(0, 70)}`, 'warn');
           n++;
         });
-        list.innerHTML = '<p class="small text-secondary mb-0 py-1">No folders found. Check log.</p>';
+        list.innerHTML = '<p style="color:#999;font-size:12px;margin:4px 0 0">No folders found. Check log.</p>';
         links.style.display = 'none';
         $('rbe-start-btn').disabled = true;
         return;
       }
 
       list.innerHTML = folders.map((f, i) => `
-        <div class="form-check py-1">
-          <input class="form-check-input rbe-folder-cb" type="checkbox" id="rbe-f-${i}" value="${esc(f.name)}" checked>
-          <label class="form-check-label small" for="rbe-f-${i}">${esc(f.name)}</label>
-        </div>`).join('');
+        <label class="rbe-check">
+          <input type="checkbox" class="rbe-folder-cb" id="rbe-f-${i}" value="${esc(f.name)}" checked>
+          <span>${esc(f.name)}</span>
+        </label>`).join('');
       links.style.display = 'block';
       $('rbe-start-btn').disabled = false;
       log(`Scanned ${folders.length} folder(s)`, 'success');
@@ -624,7 +616,6 @@
 
   // ── INIT / RESUME ─────────────────────────────────────────────────────────────
   async function init() {
-    injectOliveStyles();
     createPanel();
     restoreLog();
     const s = st();
