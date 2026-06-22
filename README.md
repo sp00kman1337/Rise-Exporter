@@ -11,25 +11,27 @@ as Web (HTML) and/or LMS (SCORM) packages across multiple subfolders.
 
 ## Installation
 
-### Option 1 — Install directly (recommended)
-
 Click the link below while Tampermonkey is installed and it will prompt you to install
 the script automatically:
 
 [Install Rise 360 Bulk Export](https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js)
 
-### Option 2 — Manual install with auto-update
+Auto-update is built in. Tampermonkey will check for updates automatically and prompt
+you whenever a new version is available — no extra configuration needed.
 
-If you already have a version of the script installed manually, add these two lines
-to the Tampermonkey header to link it to this repository for automatic updates:
+## Updating
 
-```js
-// @updateURL    https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js
-// @downloadURL  https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js
-```
+Updates are applied automatically when a new version is published. If you want to
+trigger an update check immediately rather than waiting for the next automatic check:
 
-Tampermonkey will check for updates automatically and prompt you whenever a new
-version is available.
+1. Click the Tampermonkey icon in your browser toolbar
+2. Select **Dashboard**
+3. Find **Rise 360 Bulk Export** in the list
+4. Click the **Last updated** date to open the script details
+5. Click **Check for updates**
+
+Tampermonkey will only install an update if the version number in the repository is
+higher than your currently installed version.
 
 ## Browser Setup
 
@@ -102,6 +104,7 @@ const DELAYS = {
 
 | Version | Notes |
 |---|---|
+| 3.4 | Inline BootStream styling, resolved Rise CSP blocking issue |
 | 3.3 | OLIVE/BootStream UI styling, GitHub auto-update support |
 | 3.2 | Security hardening, redundancy fixes |
 | 3.1 | Removed prefix feature, added instructions panel |
