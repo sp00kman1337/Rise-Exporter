@@ -508,6 +508,10 @@
     #rbe-select-links a:hover { text-decoration:underline }
     #rbe-log { max-height:220px; overflow-y:auto; padding:8px 14px; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:11px; line-height:1.5; background:#f7f7f7 }
     .rbe-log-info { color:#555 } .rbe-log-success { color:#00985b } .rbe-log-warn { color:#f67d02 } .rbe-log-error { color:#cc3340 }
+    #rbe-footer { display:flex; align-items:center; gap:6px; padding:6px 14px; border-top:1px solid #dee2e6; font-size:10px; color:#999 }
+    #rbe-footer a { color:#5564ff; text-decoration:none }
+    #rbe-footer a:hover { text-decoration:underline }
+    #rbe-footer span { color:#d0d0d0 }
   `);
 
   function createPanel() {
@@ -543,6 +547,11 @@
           <button class="rbe-btn rbe-btn-danger" id="rbe-stop-btn">Stop</button>
         </div>
         <div id="rbe-log"></div>
+        <div id="rbe-footer">
+          <a href="https://github.com/sp00kman1337/Rise-Exporter" target="_blank">GitHub</a>
+          <span>|</span>
+          <a href="mailto:jpelupessy@onestreamsoftware.com">Jay Pelupessy</a>
+        </div>
       </div>`;
     document.body.appendChild(panel);
 
