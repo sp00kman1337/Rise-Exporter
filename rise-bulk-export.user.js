@@ -8,6 +8,8 @@
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @updateURL    https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js
+// @downloadURL  https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -470,10 +472,10 @@
   // ── UI ────────────────────────────────────────────────────────────────────────
   /** Inject BootStream theme + Bootstrap Icons from the OLIVE server */
   function injectOliveStyles() {
-    const BASE = 'https://ges-project-olive-gvdvgqbsg8hmfzc2.westcentralus-01.azurewebsites.net';
+    const BASE = 'https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main';
     [
-      `${BASE}/shared/vendor/bootstream/dist/theme.min.css`,
-      `${BASE}/shared/vendor/bootstrap-icons/font/bootstrap-icons.min.css`,
+      `${BASE}/dist/theme.min.css`,
+      'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
     ].forEach(href => {
       const link = document.createElement('link');
       link.rel = 'stylesheet'; link.href = href;
