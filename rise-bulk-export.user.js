@@ -8,6 +8,8 @@
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @homepageURL  https://github.com/sp00kman1337/Rise-Exporter#readme
+// @supportURL   https://github.com/sp00kman1337/Rise-Exporter#readme
 // @updateURL    https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js
 // @downloadURL  https://raw.githubusercontent.com/sp00kman1337/Rise-Exporter/main/rise-bulk-export.user.js
 // @run-at       document-idle
